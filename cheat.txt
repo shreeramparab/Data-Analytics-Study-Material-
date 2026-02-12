@@ -1,5 +1,5 @@
-python -m venv (environment name ) # to create 
-enivronment name\Scripts\activate # to activate the enivronment
+2) python -m venv (environment name ) # to create enivronment 
+3) name\Scripts\Activate # to activate the enivronment
 Remove-Item -Recurse -Force enivronment name  # to remove the enivronment
-Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass # to remove the restriction
+1) Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass # to remove the restriction
 Rename-Item oldenvname newenvname
