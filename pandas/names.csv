@@ -1,8 +1,6 @@
-name,age,city,salary
-name,age,city,salary
-wills,26,Jaipur,12942
-Shree,25,Mumbai,10821
-John,22,Pune,10873
-Shreeram,27,Delhi,11237
-Ram,29,Mumbai,11803
-Jack,20,New York,12000
+1,wills,26,Jaipur,12942
+2,Shree,25,Mumbai,10821
+3,John,22,Pune,10873
+4,Shreeram,27,Delhi,11237
+5,Ram,29,Mumbai,11803
+6,Jack,20,New York,12000
