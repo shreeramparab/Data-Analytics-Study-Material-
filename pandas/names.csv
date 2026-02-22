@@ -1,6 +1,6 @@
 id,name,age,city,salary
-2.0,Shree,25.0,Mumbai,10821.0
-3.0,John,22.0,Pune,10873.0
-4.0,Shreeram,27.0,Delhi,11237.0
-5.0,Ram,29.0,Mumbai,11803.0
-6.0,Jack,20.0,New York,12000.0
+1,Shree,25,Mumbai,10821.0
+2,John,22,Pune,10873.0
+3,Shreeram,27,Delhi,11237.0
+4,Ram,29,Mumbai,11803.0
+5,Jack,20,New York,12000.0
