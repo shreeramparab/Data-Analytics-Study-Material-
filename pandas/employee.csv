@@ -1,7 +1,6 @@
-id,name,age,gender,salary
-1,Shreeram,27,Male,10000
-2,Shree,28,Female,12000
-3,Ram,29,Male,12000
-4,Riya,45,Male,13000
-5,Sushma,15,Female,11000
-6,John,22,Male,12000
+id,Shreeram,27,Male,10000
+1,Shree,28,Female,12000
+2,Ram,29,Male,12000
+3,Riya,45,Female,13000
+4,Sushma,15,Female,11000
+5,John,22,Male,12000
