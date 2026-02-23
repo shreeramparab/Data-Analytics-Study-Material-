@@ -1,4 +1,4 @@
-id,name,age,salary,bonus,city
+id,name,age,city,salary,bonus
 1,Shree,25,Mumbai,10821.0,1082
 2,John,22,Pune,10873.0,1087
 3,Shreeram,27,Delhi,11237.0,1123
