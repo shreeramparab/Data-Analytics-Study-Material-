@@ -1,8 +1,21 @@
-    id,name,age,city,gender,salary,hike,bonus
-    1,Riya,28,New York,Male,12000,1.3,1200.0
-    2,Ram,29,London,Male,12000,1.3,1200.0
-    3,Shree,45,Paris,Female,13000,1.4,1300.0
-    4,Sushma,15,Tokyo,Female,11000,1.2,1100.0
-    5,John,22,Sydney,Male,12000,1.3,1200.0
-    6,Shreeram,27,Mumbai,Male,11237,1.2,1123.0
-                
+id,name,age,city,gender,salary,hike,bonus
+1,Riya,28,New York,Female,12000,1.3,1200.0
+2,Ram,29,London,Male,12000,1.3,1200.0
+3,Shree,45,Paris,Female,13000,1.4,1300.0
+4,Sushma,15,Tokyo,Female,11000,1.2,1100.0
+5,John,22,Sydney,Male,12000,1.3,1200.0
+6,Shreeram,27,Mumbai,Male,11237,1.2,1123.0
+7,Amit,31,Berlin,Male,15000,1.5,1500.0
+8,Priya,26,Toronto,Female,12500,1.3,1250.0
+9,Karan,33,Dubai,Male,14000,1.4,1400.0
+10,Neha,24,Singapore,Female,11800,1.2,1180.0
+11,David,38,Chicago,Male,16000,1.6,1600.0
+12,Sophia,30,Melbourne,Female,13500,1.4,1350.0
+13,Arjun,41,Delhi,Male,17000,1.7,1700.0
+14,Meera,36,Bangalore,Female,15500,1.5,1550.0
+15,Rohit,23,Pune,Male,11500,1.2,1150.0
+16,Anjali,34,Chennai,Female,14500,1.4,1450.0
+17,Michael,40,Los Angeles,Male,18000,1.8,1800.0
+18,Emma,27,San Francisco,Female,15000,1.5,1500.0
+19,Vikram,32,Hyderabad,Male,14200,1.4,1420.0
+20,Lisa,29,Amsterdam,Female,13800,1.3,1380.0
