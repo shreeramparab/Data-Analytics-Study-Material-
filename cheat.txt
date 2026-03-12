@@ -4,3 +4,4 @@ Remove-Item -Recurse -Force enivronment name  # to remove the enivronment
 1) Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass # to remove the restriction
 Rename-Item oldenvname newenvname
 pip freeze > requirements.txt # to create requirements.txt
+git branch --set-upstream-to=origin/main main
