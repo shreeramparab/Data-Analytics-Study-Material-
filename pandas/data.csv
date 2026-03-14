@@ -1,0 +1,11 @@
+Employee,Department,City,Salary,Experience,Performance,Phone_Number,Office_Location_Code,Temporary_Flag
+Aman,IT,Mumbai,70000,3,4,9876,M1,Y
+Riya,HR,Delhi,50000,2,3,8765,D1,N
+Karan,IT,Mumbai,80000,5,5,7654,M1,N
+Zoya,Finance,Delhi,90000,7,4,6543,D1,Y
+Arjun,HR,Bangalore,52000,3,3,5432,B1,N
+Meera,IT,Mumbai,75000,4,4,4321,M1,N
+Kabir,Finance,Delhi,88000,6,5,3210,D1,Y
+Archita,IT,Bangalore,72000,3,4,2109,B1,N
+Rahul,HR,Mumbai,51000,2,3,1098,M1,N
+Pushpa,Finance,Bangalore,91000,8,5,9987,B1,Y
