@@ -1,0 +1,793 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pandas — No Mercy Edition</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&family=Bebas+Neue&family=DM+Sans:wght@300;400;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0a0f;
+    --surface: #111118;
+    --card: #16161f;
+    --border: #2a2a38;
+    --accent: #ff4d4d;
+    --accent2: #ffaa00;
+    --accent3: #00e5ff;
+    --green: #39ff14;
+    --muted: #555566;
+    --text: #e8e8f0;
+    --text-dim: #9999aa;
+    --code-bg: #0d0d16;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--bg); color: var(--text); font-family: 'DM Sans', sans-serif; min-height: 100vh; }
+  header {
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    padding: 0 24px;
+    position: sticky; top: 0; z-index: 100;
+    display: flex; align-items: center; gap: 24px; height: 52px; overflow-x: auto;
+  }
+  .logo { font-family: 'Bebas Neue', sans-serif; font-size: 22px; color: var(--accent); letter-spacing: 2px; white-space: nowrap; flex-shrink: 0; }
+  .logo span { color: var(--accent3); }
+  nav { display: flex; gap: 4px; overflow-x: auto; scrollbar-width: none; }
+  nav::-webkit-scrollbar { display: none; }
+  nav button {
+    background: transparent; border: none; color: var(--text-dim);
+    padding: 6px 10px; font-size: 11px; font-family: 'JetBrains Mono', monospace;
+    cursor: pointer; border-radius: 4px; white-space: nowrap; transition: all 0.15s;
+  }
+  nav button:hover { color: var(--text); background: var(--card); }
+  nav button.active { color: var(--accent2); background: rgba(255,170,0,0.08); }
+  main { max-width: 1000px; margin: 0 auto; padding: 32px 24px 80px; }
+  .topic-header { margin-bottom: 28px; animation: fadeIn 0.3s ease; }
+  .topic-num { font-family: 'Bebas Neue', sans-serif; font-size: 13px; letter-spacing: 3px; color: var(--accent); margin-bottom: 6px; }
+  .topic-title { font-family: 'Bebas Neue', sans-serif; font-size: 42px; letter-spacing: 1px; color: var(--text); line-height: 1; margin-bottom: 10px; }
+  .topic-tagline { color: var(--text-dim); font-size: 14px; line-height: 1.5; max-width: 640px; }
+  .topic-tagline strong { color: var(--accent2); font-weight: 600; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+  .section { margin-bottom: 28px; animation: fadeIn 0.3s ease; }
+  .section-label {
+    font-family: 'JetBrains Mono', monospace; font-size: 10px; letter-spacing: 2px;
+    color: var(--muted); text-transform: uppercase; margin-bottom: 10px;
+    display: flex; align-items: center; gap: 10px;
+  }
+  .section-label::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+  .code-block {
+    background: var(--code-bg); border: 1px solid var(--border);
+    border-left: 3px solid var(--accent3); border-radius: 6px; overflow: hidden; margin-bottom: 16px;
+  }
+  .code-block.bad { border-left-color: var(--accent); }
+  .code-block.good { border-left-color: var(--green); }
+  .code-block.warn { border-left-color: var(--accent2); }
+  .code-header {
+    background: rgba(255,255,255,0.03); border-bottom: 1px solid var(--border);
+    padding: 7px 14px; font-family: 'JetBrains Mono', monospace; font-size: 11px;
+    color: var(--muted); display: flex; justify-content: space-between; align-items: center;
+  }
+  .badge { font-size: 9px; letter-spacing: 1px; padding: 2px 7px; border-radius: 3px; font-weight: 700; }
+  .badge.bad { background: rgba(255,77,77,0.15); color: var(--accent); }
+  .badge.good { background: rgba(57,255,20,0.12); color: var(--green); }
+  .badge.warn { background: rgba(255,170,0,0.12); color: var(--accent2); }
+  pre { padding: 16px; font-family: 'JetBrains Mono', monospace; font-size: 12.5px; line-height: 1.7; overflow-x: auto; color: var(--text); }
+  .kw { color: #c792ea; } .fn { color: #82aaff; } .str { color: #c3e88d; }
+  .cm { color: #546e7a; font-style: italic; } .num { color: #f78c6c; } .var { color: #ffcb6b; }
+  .rules { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 12px; margin-bottom: 16px; }
+  .rule-card { background: var(--card); border: 1px solid var(--border); border-radius: 6px; padding: 14px 16px; }
+  .rule-title { font-family: 'JetBrains Mono', monospace; font-size: 11px; font-weight: 700; color: var(--accent2); margin-bottom: 6px; }
+  .rule-body { font-size: 13px; color: var(--text-dim); line-height: 1.5; }
+  .rule-body code { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--accent3); background: rgba(0,229,255,0.07); padding: 1px 5px; border-radius: 3px; }
+  .callout { background: rgba(255,77,77,0.05); border: 1px solid rgba(255,77,77,0.2); border-radius: 6px; padding: 14px 16px; margin-bottom: 16px; font-size: 13px; color: var(--text-dim); line-height: 1.6; }
+  .callout.info { background: rgba(0,229,255,0.04); border-color: rgba(0,229,255,0.15); }
+  .callout strong { color: var(--accent); font-weight: 600; }
+  .callout.info strong { color: var(--accent3); }
+  .perf-table { width: 100%; border-collapse: collapse; font-size: 12.5px; font-family: 'JetBrains Mono', monospace; margin-bottom: 16px; }
+  .perf-table th { background: var(--card); color: var(--accent2); padding: 8px 12px; text-align: left; font-size: 11px; letter-spacing: 1px; border-bottom: 2px solid var(--border); }
+  .perf-table td { padding: 8px 12px; border-bottom: 1px solid var(--border); color: var(--text-dim); }
+  .perf-table tr:hover td { background: rgba(255,255,255,0.02); color: var(--text); }
+  .fast { color: #39ff14; } .slow { color: #ff4d4d; } .ok { color: #ffaa00; }
+  .topic-page { display: none; }
+  .topic-page.active { display: block; }
+  .progress-bar { height: 2px; background: var(--border); margin-bottom: 32px; border-radius: 2px; overflow: hidden; }
+  .progress-fill { height: 100%; background: linear-gradient(90deg, var(--accent), var(--accent2)); transition: width 0.4s ease; }
+  .bottom-nav { display: flex; justify-content: space-between; margin-top: 40px; padding-top: 20px; border-top: 1px solid var(--border); }
+  .btn { background: var(--card); border: 1px solid var(--border); color: var(--text); padding: 10px 20px; font-family: 'JetBrains Mono', monospace; font-size: 12px; cursor: pointer; border-radius: 5px; transition: all 0.15s; }
+  .btn:hover { border-color: var(--accent2); color: var(--accent2); }
+  .btn:disabled { opacity: 0.3; cursor: not-allowed; }
+  .btn.primary { background: var(--accent); border-color: var(--accent); color: #fff; }
+  .btn.primary:hover { background: #ff3333; }
+</style>
+</head>
+<body>
+<header>
+  <div class="logo">PANDAS<span>.</span>HARD</div>
+  <nav id="topNav"></nav>
+</header>
+<main>
+  <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+
+  <!-- TOPIC 1 -->
+  <div class="topic-page active" id="topic-0">
+    <div class="topic-header">
+      <div class="topic-num">TOPIC 01 / 10</div>
+      <div class="topic-title">Window Functions</div>
+      <div class="topic-tagline">SQL's <strong>OVER(PARTITION BY ... ORDER BY ...)</strong> in Pandas. If you're doing this with groupby + merge loops, I will find you.</div>
+    </div>
+    <div class="section">
+      <div class="section-label">The Mental Model</div>
+      <div class="callout info"><strong>Core idea:</strong> A window function computes a value for each row using a sliding window of neighboring rows — without collapsing the DataFrame. GroupBy collapses rows. Window functions don't. Burn that distinction in.</div>
+      <div class="rules">
+        <div class="rule-card"><div class="rule-title">RANKING</div><div class="rule-body">Rank within group: <code>.rank()</code>, <code>.cumcount()</code></div></div>
+        <div class="rule-card"><div class="rule-title">RUNNING TOTALS</div><div class="rule-body">Cumulative ops: <code>cumsum()</code>, <code>cumprod()</code>, <code>cummax()</code></div></div>
+        <div class="rule-card"><div class="rule-title">LAG / LEAD</div><div class="rule-body">Prev/next rows: <code>shift(1)</code> / <code>shift(-1)</code></div></div>
+        <div class="rule-card"><div class="rule-title">ROLLING</div><div class="rule-body">Fixed window: <code>rolling(n).mean()</code>, <code>rolling(n).std()</code></div></div>
+        <div class="rule-card"><div class="rule-title">EXPANDING</div><div class="rule-body">Grows from start: <code>expanding().sum()</code></div></div>
+        <div class="rule-card"><div class="rule-title">EWMA</div><div class="rule-body">Exponential weight: <code>ewm(span=3).mean()</code></div></div>
+      </div>
+    </div>
+    <div class="section">
+      <div class="section-label">Ranking within groups (SQL: ROW_NUMBER / RANK)</div>
+      <div class="code-block bad">
+        <div class="code-header"><span>&#10060; The Amateur Approach</span><span class="badge bad">WRONG</span></div>
+        <pre><span class="cm"># Merging back just to add a rank column. Criminal.</span>
+ranks = df.groupby(<span class="str">'dept'</span>)[<span class="str">'salary'</span>].rank(method=<span class="str">'dense'</span>, ascending=<span class="kw">False</span>)
+df2 = df.merge(ranks.rename(<span class="str">'rank'</span>), left_index=<span class="kw">True</span>, right_index=<span class="kw">True</span>)</pre>
+      </div>
+      <div class="code-block good">
+        <div class="code-header"><span>&#10003; Direct Assignment</span><span class="badge good">CORRECT</span></div>
+        <pre><span class="cm"># transform returns same-index Series. Assign directly. No merge needed.</span>
+df[<span class="str">'salary_rank'</span>] = df.groupby(<span class="str">'dept'</span>)[<span class="str">'salary'</span>].<span class="fn">rank</span>(method=<span class="str">'dense'</span>, ascending=<span class="kw">False</span>)
+df[<span class="str">'row_num'</span>]     = df.groupby(<span class="str">'dept'</span>).<span class="fn">cumcount</span>() + <span class="num">1</span>  <span class="cm"># 1-indexed row number per group</span>
+
+<span class="cm"># TOP-N per group: top 3 earners per dept</span>
+top3 = df[df[<span class="str">'salary_rank'</span>] &lt;= <span class="num">3</span>]</pre>
+      </div>
+    </div>
+    <div class="section">
+      <div class="section-label">Lag / Lead + Running Totals</div>
+      <div class="code-block">
+        <div class="code-header"><span>shift(), cumsum(), rolling()</span></div>
+        <pre><span class="cm"># ALWAYS sort first or your lag/lead is garbage</span>
+df = df.<span class="fn">sort_values</span>([<span class="str">'user_id'</span>, <span class="str">'date'</span>])
+
+df[<span class="str">'prev_purchase'</span>]  = df.groupby(<span class="str">'user_id'</span>)[<span class="str">'amount'</span>].<span class="fn">shift</span>(<span class="num">1</span>)   <span class="cm"># LAG</span>
+df[<span class="str">'next_purchase'</span>]  = df.groupby(<span class="str">'user_id'</span>)[<span class="str">'amount'</span>].<span class="fn">shift</span>(-<span class="num">1</span>)  <span class="cm"># LEAD</span>
+df[<span class="str">'cum_spend'</span>]      = df.groupby(<span class="str">'user_id'</span>)[<span class="str">'amount'</span>].<span class="fn">cumsum</span>()
+
+<span class="cm"># Rolling 7-period average per user</span>
+df[<span class="str">'rolling_7'</span>] = (
+    df.groupby(<span class="str">'user_id'</span>)[<span class="str">'amount'</span>]
+      .<span class="fn">rolling</span>(<span class="num">7</span>, min_periods=<span class="num">1</span>)
+      .<span class="fn">mean</span>()
+      .<span class="fn">reset_index</span>(level=<span class="num">0</span>, drop=<span class="kw">True</span>)  <span class="cm"># drop the group level from index</span>
+)</pre>
+      </div>
+    </div>
+    <div class="section">
+      <div class="section-label">transform vs agg — the most important distinction</div>
+      <div class="code-block warn">
+        <div class="code-header"><span>transform broadcasts back to original shape</span><span class="badge warn">MEMORIZE THIS</span></div>
+        <pre><span class="cm"># agg collapses rows</span>
+dept_avg = df.groupby(<span class="str">'dept'</span>)[<span class="str">'salary'</span>].<span class="fn">mean</span>()        <span class="cm"># shorter Series</span>
+
+<span class="cm"># transform keeps same row count as df — assigns directly</span>
+df[<span class="str">'dept_avg'</span>]      = df.groupby(<span class="str">'dept'</span>)[<span class="str">'salary'</span>].<span class="fn">transform</span>(<span class="str">'mean'</span>)
+df[<span class="str">'salary_vs_avg'</span>] = df[<span class="str">'salary'</span>] - df[<span class="str">'dept_avg'</span>]</pre>
+      </div>
+    </div>
+  </div>
+
+  <!-- TOPIC 2 -->
+  <div class="topic-page" id="topic-1">
+    <div class="topic-header">
+      <div class="topic-num">TOPIC 02 / 10</div>
+      <div class="topic-title">MultiIndex</div>
+      <div class="topic-tagline">Hierarchical indexing. Most people <strong>fear it</strong>. You will own it. The secret: always know which level you're targeting.</div>
+    </div>
+    <div class="section">
+      <div class="section-label">Creating a MultiIndex — 3 ways</div>
+      <div class="code-block">
+        <div class="code-header"><span>from_tuples / from_product / set_index</span></div>
+        <pre><span class="cm"># 1. from_tuples</span>
+idx = pd.MultiIndex.<span class="fn">from_tuples</span>([(<span class="str">'A'</span>,<span class="num">1</span>),(<span class="str">'A'</span>,<span class="num">2</span>),(<span class="str">'B'</span>,<span class="num">1</span>)], names=[<span class="str">'group'</span>,<span class="str">'id'</span>])
+
+<span class="cm"># 2. from_product — all combinations (powerful)</span>
+idx = pd.MultiIndex.<span class="fn">from_product</span>([[<span class="str">'A'</span>,<span class="str">'B'</span>],[<span class="num">1</span>,<span class="num">2</span>,<span class="num">3</span>]], names=[<span class="str">'group'</span>,<span class="str">'id'</span>])
+
+<span class="cm"># 3. set_index — most common</span>
+df = df.<span class="fn">set_index</span>([<span class="str">'year'</span>, <span class="str">'month'</span>]).<span class="fn">sort_index</span>()  <span class="cm"># ALWAYS sort_index()</span></pre>
+      </div>
+    </div>
+    <div class="section">
+      <div class="section-label">Selecting data — loc, xs, IndexSlice</div>
+      <div class="code-block">
+        <div class="code-header"><span>Know your selector for each case</span></div>
+        <pre><span class="cm"># Outer level</span>
+df.<span class="fn">loc</span>[<span class="str">'A'</span>]                              <span class="cm"># all rows where level-0 == 'A'</span>
+
+<span class="cm"># Both levels</span>
+df.<span class="fn">loc</span>[(<span class="str">'A'</span>, <span class="num">2024</span>)]                      <span class="cm"># exact row</span>
+
+<span class="cm"># xs: best for inner levels (cannot do with loc easily)</span>
+df.<span class="fn">xs</span>(<span class="num">2024</span>, level=<span class="str">'year'</span>)              <span class="cm"># all rows where year==2024</span>
+df.<span class="fn">xs</span>((<span class="str">'A'</span>,<span class="num">2024</span>), level=[<span class="str">'group'</span>,<span class="str">'year'</span>])
+
+<span class="cm"># IndexSlice: range slicing across levels</span>
+idx = pd.IndexSlice
+df.<span class="fn">loc</span>[idx[<span class="str">'A'</span>:<span class="str">'B'</span>, <span class="num">2022</span>:<span class="num">2024</span>], :]    <span class="cm"># groups A-B, years 2022-2024</span></pre>
+      </div>
+    </div>
+    <div class="section">
+      <div class="section-label">Stack / Unstack — the power move</div>
+      <div class="code-block warn">
+        <div class="code-header"><span>unstack pivots an index level into columns</span><span class="badge warn">KEY OPERATION</span></div>
+        <pre>df = df.<span class="fn">set_index</span>([<span class="str">'region'</span>, <span class="str">'year'</span>])
+
+<span class="cm"># Move 'year' from index → column headers</span>
+wide = df.<span class="fn">unstack</span>(<span class="str">'year'</span>)    <span class="cm"># columns become MultiIndex (metric, year)</span>
+
+<span class="cm"># Reverse: collapse column level back into index</span>
+long = wide.<span class="fn">stack</span>(<span class="str">'year'</span>)
+
+<span class="cm"># Real use: year-over-year % change per region in 2 lines</span>
+sales = df[<span class="str">'sales'</span>].<span class="fn">unstack</span>(<span class="str">'year'</span>)
+yoy   = sales.<span class="fn">pct_change</span>(axis=<span class="num">1</span>) * <span class="num">100</span></pre>
+      </div>
+    </div>
+    <div class="section">
+      <div class="section-label">Pitfalls</div>
+      <div class="callout"><strong>&#9888; Unsorted index = silent wrong results.</strong> After set_index, always call sort_index(). Slicing an unsorted MultiIndex raises PerformanceWarning and returns garbage.<br><br><strong>&#9888; reset_index() to escape.</strong> When MultiIndex becomes unwieldy, flatten it. That's not defeat — that's pragmatism.</div>
+    </div>
+  </div>
+
+  <!-- TOPIC 3 -->
+  <div class="topic-page" id="topic-2">
+    <div class="topic-header">
+      <div class="topic-num">TOPIC 03 / 10</div>
+      <div class="topic-title">Advanced GroupBy</div>
+      <div class="topic-tagline">You know <strong>groupby().sum()</strong>. Now learn the parts that separate analysts from engineers.</div>
+    </div>
+    <div class="section">
+      <div class="section-label">Named aggregations — the right way</div>
+      <div class="code-block">
+        <div class="code-header"><span>Named agg: clean output column names, no MultiIndex mess</span></div>
+        <pre><span class="cm"># Old way: generates ugly MultiIndex columns you have to flatten</span>
+df.groupby(<span class="str">'dept'</span>)[<span class="str">'salary'</span>].<span class="fn">agg</span>([<span class="str">'mean'</span>, <span class="str">'max'</span>, <span class="str">'count'</span>])
+
+<span class="cm"># Named agg (pandas 0.25+) — explicit output names</span>
+result = df.<span class="fn">groupby</span>(<span class="str">'dept'</span>).<span class="fn">agg</span>(
+    avg_salary  = (<span class="str">'salary'</span>,      <span class="str">'mean'</span>),
+    max_salary  = (<span class="str">'salary'</span>,      <span class="str">'max'</span>),
+    headcount   = (<span class="str">'employee_id'</span>, <span class="str">'count'</span>),
+    total_bonus = (<span class="str">'bonus'</span>,       <span class="str">'sum'</span>),
+    any_remote  = (<span class="str">'is_remote'</span>,   <span class="str">'any'</span>),
+)</pre>
+      </div>
+    </div>
+    <div class="section">
+      <div class="section-label">filter() — prune entire groups</div>
+      <div class="code-block">
+        <div class="code-header"><span>Drop or keep whole groups based on a group-level condition</span></div>
+        <pre><span class="cm"># Keep only departments with more than 5 employees</span>
+df.<span class="fn">groupby</span>(<span class="str">'dept'</span>).<span class="fn">filter</span>(<span class="kw">lambda</span> x: <span class="fn">len</span>(x) > <span class="num">5</span>)
+
+<span class="cm"># Keep groups where mean salary exceeds 70k</span>
+df.<span class="fn">groupby</span>(<span class="str">'dept'</span>).<span class="fn">filter</span>(<span class="kw">lambda</span> x: x[<span class="str">'salary'</span>].<span class="fn">mean</span>() > <span class="num">70_000</span>)</pre>
+      </div>
+    </div>
+    <div class="section">
+      <div class="section-label">apply() — escape hatch, not default tool</div>
+      <div class="code-block warn">
+        <div class="code-header"><span>Custom per-group logic when nothing else works</span><span class="badge warn">SLOW — LAST RESORT</span></div>
+        <pre><span class="kw">def</span> <span class="fn">minmax_scale</span>(group):
+    mn, mx = group[<span class="str">'salary'</span>].<span class="fn">min</span>(), group[<span class="str">'salary'</span>].<span class="fn">max</span>()
+    group = group.<span class="fn">copy</span>()
+    group[<span class="str">'salary_norm'</span>] = (group[<span class="str">'salary'</span>] - mn) / (mx - mn)
+    <span class="kw">return</span> group
+
+result = df.<span class="fn">groupby</span>(<span class="str">'dept'</span>, group_keys=<span class="kw">False</span>).<span class="fn">apply</span>(minmax_scale)
+<span class="cm"># group_keys=False: prevents adding group keys to the index</span>
+<span class="cm"># If apply can be replaced by transform — always replace it. 10-100x faster.</span></pre>
+      </div>
+    </div>
+    <div class="section">
+      <div class="section-label">Grouping by bins, booleans, multiple keys</div>
+      <div class="code-block">
+        <div class="code-header"><span>Beyond column names</span></div>
+        <pre><span class="cm"># Group by derived boolean — no column needed</span>
+df.<span class="fn">groupby</span>(df[<span class="str">'salary'</span>] > <span class="num">80_000</span>)[<span class="str">'bonus'</span>].<span class="fn">mean</span>()
+
+<span class="cm"># Group by bins</span>
+df.<span class="fn">groupby</span>(pd.<span class="fn">cut</span>(df[<span class="str">'age'</span>], bins=[<span class="num">20</span>,<span class="num">30</span>,<span class="num">40</span>,<span class="num">50</span>,<span class="num">60</span>]))[<span class="str">'salary'</span>].<span class="fn">mean</span>()
+
+<span class="cm"># Multiple keys + unstack = quick pivot table</span>
+df.<span class="fn">groupby</span>([<span class="str">'dept'</span>, <span class="str">'year'</span>])[<span class="str">'salary'</span>].<span class="fn">mean</span>().<span class="fn">unstack</span>()
+
+<span class="cm"># observed=True — critical for categorical keys (suppresses empty groups)</span>
+df.<span class="fn">groupby</span>(<span class="str">'dept'</span>, observed=<span class="kw">True</span>)[<span class="str">'salary'</span>].<span class="fn">mean</span>()</pre>
+      </div>
+    </div>
+  </div>
+
+  <!-- TOPIC 4 -->
+  <div class="topic-page" id="topic-3">
+    <div class="topic-header">
+      <div class="topic-num">TOPIC 04 / 10</div>
+      <div class="topic-title">Performance Optimization</div>
+      <div class="topic-tagline">Your code is correct but takes <strong>40 seconds on 1M rows</strong>. That's not a Pandas problem. That's a you problem.</div>
+    </div>
+    <div class="section">
+      <div class="section-label">Speed hierarchy — know where you sit</div>
+      <table class="perf-table">
+        <thead><tr><th>Method</th><th>Relative Speed</th><th>Use When</th></tr></thead>
+        <tbody>
+          <tr><td>Built-in vectorized ops</td><td class="fast">&#9889; Fastest (baseline)</td><td>Always try first</td></tr>
+          <tr><td>NumPy ufuncs on .values</td><td class="fast">&#9889; ~baseline</td><td>Math-heavy operations</td></tr>
+          <tr><td>Cython-backed groupby agg</td><td class="fast">&#9889; ~2-5x slower</td><td>Groupby with built-in funcs</td></tr>
+          <tr><td>.transform('func_string')</td><td class="ok">&#9899; ~5-10x slower</td><td>Built-in funcs as strings</td></tr>
+          <tr><td>.apply(lambda)</td><td class="slow">&#128308; ~50-500x slower</td><td>Last resort only</td></tr>
+          <tr><td>Python loop over rows</td><td class="slow">&#128308; ~1000x slower</td><td>Never.</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="section">
+      <div class="section-label">dtype optimization — do this before anything else</div>
+      <div class="code-block good">
+        <div class="code-header"><span>Cut memory and operations get faster automatically</span><span class="badge good">DO THIS FIRST</span></div>
+        <pre><span class="cm"># Audit dtypes immediately after loading</span>
+df.<span class="fn">info</span>(memory_usage=<span class="str">'deep'</span>)
+
+<span class="cm"># int64 is almost always overkill</span>
+df[<span class="str">'age'</span>]  = df[<span class="str">'age'</span>].<span class="fn">astype</span>(<span class="str">'int8'</span>)    <span class="cm"># 8x reduction</span>
+df[<span class="str">'year'</span>] = df[<span class="str">'year'</span>].<span class="fn">astype</span>(<span class="str">'int16'</span>)
+
+<span class="cm"># float64 -> float32 (halve float memory)</span>
+fcols = df.<span class="fn">select_dtypes</span>(<span class="str">'float64'</span>).columns
+df[fcols] = df[fcols].<span class="fn">astype</span>(<span class="str">'float32'</span>)
+
+<span class="cm"># Low-cardinality strings -> category</span>
+df[<span class="str">'dept'</span>] = df[<span class="str">'dept'</span>].<span class="fn">astype</span>(<span class="str">'category'</span>)</pre>
+      </div>
+    </div>
+    <div class="section">
+      <div class="section-label">query() and eval() — bypass Python overhead</div>
+      <div class="code-block">
+        <div class="code-header"><span>Single-pass filtering and column creation</span></div>
+        <pre><span class="cm"># Standard: creates 2 boolean arrays then combines them</span>
+mask = (df[<span class="str">'salary'</span>] > <span class="num">60_000</span>) &amp; (df[<span class="str">'dept'</span>] == <span class="str">'Engineering'</span>)
+
+<span class="cm"># query(): single pass, less memory, more readable</span>
+df.<span class="fn">query</span>(<span class="str">'salary &gt; 60_000 and dept == "Engineering"'</span>)
+
+<span class="cm"># Reference Python variables with @</span>
+threshold = <span class="num">60_000</span>
+df.<span class="fn">query</span>(<span class="str">'salary &gt; @threshold'</span>)
+
+<span class="cm"># eval() for column creation (avoids temp arrays)</span>
+df.<span class="fn">eval</span>(<span class="str">'bonus_ratio = bonus / salary'</span>, inplace=<span class="kw">True</span>)</pre>
+      </div>
+    </div>
+    <div class="section">
+      <div class="section-label">Profile before you optimize</div>
+      <div class="code-block">
+        <div class="code-header"><span>Measure. Then optimize. Never the other way.</span></div>
+        <pre><span class="cm"># In Jupyter</span>
+%timeit df.groupby(<span class="str">'dept'</span>)[<span class="str">'salary'</span>].<span class="fn">transform</span>(<span class="str">'mean'</span>)
+%timeit df.groupby(<span class="str">'dept'</span>)[<span class="str">'salary'</span>].<span class="fn">apply</span>(<span class="kw">lambda</span> x: x.<span class="fn">mean</span>())
+
+<span class="cm"># Memory tracking</span>
+<span class="kw">import</span> tracemalloc
+tracemalloc.<span class="fn">start</span>()
+result = expensive_operation(df)
+current, peak = tracemalloc.<span class="fn">get_traced_memory</span>()
+<span class="fn">print</span>(<span class="str">f"Peak: {peak/1e6:.1f} MB"</span>)</pre>
+      </div>
+    </div>
+  </div>
+
+  <!-- TOPIC 5 -->
+  <div class="topic-page" id="topic-4">
+    <div class="topic-header">
+      <div class="topic-num">TOPIC 05 / 10</div>
+      <div class="topic-title">Vectorization vs Apply</div>
+      <div class="topic-tagline"><strong>apply() is a trap.</strong> It feels flexible. It is slow. You will use it as a crutch and I will not allow that.</div>
+    </div>
+    <div class="section">
+      <div class="section-label">The Rule</div>
+      <div class="callout"><strong>Never use apply() if you can express the operation as:</strong><br>arithmetic (+,-,*,/), comparison (&lt;,&gt;,==), string methods (.str.*), datetime methods (.dt.*), np.where, np.select, or any built-in aggregation. That covers 90% of what people use apply() for.</div>
+    </div>
+    <div class="section">
+      <div class="section-label">Replace apply with np.where / np.select</div>
+      <div class="code-block bad">
+        <div class="code-header"><span>&#10060; apply for conditional logic</span><span class="badge bad">SLOW</span></div>
+        <pre>df[<span class="str">'tier'</span>] = df[<span class="str">'salary'</span>].<span class="fn">apply</span>(
+    <span class="kw">lambda</span> x: <span class="str">'high'</span> <span class="kw">if</span> x > <span class="num">100_000</span> <span class="kw">else</span> (<span class="str">'mid'</span> <span class="kw">if</span> x > <span class="num">60_000</span> <span class="kw">else</span> <span class="str">'low'</span>)
+)</pre>
+      </div>
+      <div class="code-block good">
+        <div class="code-header"><span>&#10003; np.select for multi-condition logic</span><span class="badge good">~100x FASTER</span></div>
+        <pre><span class="kw">import</span> numpy <span class="kw">as</span> np
+
+conditions = [df[<span class="str">'salary'</span>] > <span class="num">100_000</span>, df[<span class="str">'salary'</span>] > <span class="num">60_000</span>]
+choices    = [<span class="str">'high'</span>, <span class="str">'mid'</span>]
+df[<span class="str">'tier'</span>]  = np.<span class="fn">select</span>(conditions, choices, default=<span class="str">'low'</span>)</pre>
+      </div>
+    </div>
+    <div class="section">
+      <div class="section-label">String operations — .str. not apply</div>
+      <div class="code-block bad">
+        <div class="code-header"><span>&#10060; Python string methods via apply</span><span class="badge bad">WRONG</span></div>
+        <pre>df[<span class="str">'name_upper'</span>] = df[<span class="str">'name'</span>].<span class="fn">apply</span>(<span class="kw">lambda</span> x: x.<span class="fn">upper</span>().<span class="fn">strip</span>())
+df[<span class="str">'has_dr'</span>]     = df[<span class="str">'name'</span>].<span class="fn">apply</span>(<span class="kw">lambda</span> x: x.<span class="fn">startswith</span>(<span class="str">'Dr'</span>))</pre>
+      </div>
+      <div class="code-block good">
+        <div class="code-header"><span>&#10003; Vectorized .str accessor</span><span class="badge good">CORRECT</span></div>
+        <pre>df[<span class="str">'name_upper'</span>] = df[<span class="str">'name'</span>].str.<span class="fn">upper</span>().str.<span class="fn">strip</span>()
+df[<span class="str">'has_dr'</span>]     = df[<span class="str">'name'</span>].str.<span class="fn">startswith</span>(<span class="str">'Dr'</span>)
+df[<span class="str">'domain'</span>]     = df[<span class="str">'email'</span>].str.<span class="fn">extract</span>(<span class="str">r'@(.+)'</span>)[<span class="num">0</span>]  <span class="cm"># regex extract</span></pre>
+      </div>
+    </div>
+    <div class="section">
+      <div class="section-label">When apply IS acceptable</div>
+      <div class="callout info"><strong>Legitimate apply use cases:</strong><br>
+      - Multi-column logic that cannot be expressed with vectorized arithmetic<br>
+      - Calling external APIs/functions per row (parallelize with joblib though)<br>
+      - Complex group-level logic in groupby.apply where transform truly won't work<br><br>
+      Even then — <strong>profile it first</strong>. &gt;5s on 100k rows means look harder for a vectorized path.</div>
+    </div>
+  </div>
+
+  <!-- TOPIC 6 -->
+  <div class="topic-page" id="topic-5">
+    <div class="topic-header">
+      <div class="topic-num">TOPIC 06 / 10</div>
+      <div class="topic-title">Large Dataset Handling</div>
+      <div class="topic-tagline">When data no longer fits in RAM, <strong>most people give up</strong>. You will chunk it, compress it, or hand it to the right tool.</div>
+    </div>
+    <div class="section">
+      <div class="section-label">Load only what you need</div>
+      <div class="code-block">
+        <div class="code-header"><span>Column selection + dtype hints + chunked reads</span></div>
+        <pre><span class="cm"># Only load needed columns</span>
+df = pd.<span class="fn">read_csv</span>(<span class="str">'big.csv'</span>, usecols=[<span class="str">'id'</span>, <span class="str">'date'</span>, <span class="str">'amount'</span>])
+
+<span class="cm"># Specify dtypes upfront — avoids expensive inference</span>
+dtypes = {<span class="str">'id'</span>: <span class="str">'int32'</span>, <span class="str">'amount'</span>: <span class="str">'float32'</span>, <span class="str">'dept'</span>: <span class="str">'category'</span>}
+df = pd.<span class="fn">read_csv</span>(<span class="str">'big.csv'</span>, dtype=dtypes, parse_dates=[<span class="str">'date'</span>])
+
+<span class="cm"># Chunked processing — never loads full file into memory</span>
+results = []
+<span class="kw">for</span> chunk <span class="kw">in</span> pd.<span class="fn">read_csv</span>(<span class="str">'big.csv'</span>, chunksize=<span class="num">100_000</span>):
+    agg = chunk.<span class="fn">query</span>(<span class="str">'amount &gt; 1000'</span>).<span class="fn">groupby</span>(<span class="str">'dept'</span>)[<span class="str">'amount'</span>].<span class="fn">sum</span>()
+    results.<span class="fn">append</span>(agg)
+
+final = pd.<span class="fn">concat</span>(results).<span class="fn">groupby</span>(level=<span class="num">0</span>).<span class="fn">sum</span>()</pre>
+      </div>
+    </div>
+    <div class="section">
+      <div class="section-label">Use Parquet not CSV for anything over 100MB</div>
+      <div class="code-block good">
+        <div class="code-header"><span>Parquet wins on every axis: size, speed, type fidelity</span><span class="badge good">PRODUCTION STANDARD</span></div>
+        <pre>df.<span class="fn">to_parquet</span>(<span class="str">'data.parquet'</span>, compression=<span class="str">'snappy'</span>)
+
+<span class="cm"># Column-selective read — only loads columns you ask for</span>
+df = pd.<span class="fn">read_parquet</span>(<span class="str">'data.parquet'</span>, columns=[<span class="str">'id'</span>, <span class="str">'amount'</span>])
+
+<span class="cm"># snappy = fast decompress | zstd = better compression ratio</span>
+<span class="cm"># dtypes are preserved. No re-parsing strings. No inference. Just right.</span></pre>
+      </div>
+    </div>
+    <div class="section">
+      <div class="section-label">Know when to leave Pandas</div>
+      <table class="perf-table">
+        <thead><tr><th>Data Size</th><th>Tool</th><th>Reason</th></tr></thead>
+        <tbody>
+          <tr><td>&lt; 1GB</td><td class="fast">Pandas</td><td>You're fine, optimize dtypes</td></tr>
+          <tr><td>1 – 10GB</td><td class="ok">Pandas + dtypes + Parquet</td><td>Careful memory management</td></tr>
+          <tr><td>10 – 100GB</td><td class="ok">Polars or DuckDB</td><td>Lazy eval, multithreaded</td></tr>
+          <tr><td>100GB+</td><td class="slow">Dask / Spark / BigQuery</td><td>Distributed compute required</td></tr>
+        </tbody>
+      </table>
+      <div class="code-block">
+        <div class="code-header"><span>DuckDB — SQL on Parquet/CSV without loading into RAM</span></div>
+        <pre><span class="kw">import</span> duckdb
+result = duckdb.<span class="fn">query</span>(<span class="str">"""
+    SELECT dept, AVG(salary) AS avg_sal
+    FROM 'data.parquet'
+    WHERE year = 2024
+    GROUP BY dept
+"""</span>).<span class="fn">df</span>()  <span class="cm"># returns a Pandas DataFrame</span></pre>
+      </div>
+    </div>
+  </div>
+
+  <!-- TOPIC 7 -->
+  <div class="topic-page" id="topic-6">
+    <div class="topic-header">
+      <div class="topic-num">TOPIC 07 / 10</div>
+      <div class="topic-title">Method Chaining Pipelines</div>
+      <div class="topic-tagline">Stop creating <strong>df1, df2, df_final, df_final2</strong>. Chain your transformations. One pipeline, one story.</div>
+    </div>
+    <div class="section">
+      <div class="section-label">Philosophy</div>
+      <div class="callout info"><strong>Method chaining:</strong> Every Pandas operation returns a DataFrame. Chain them with no intermediate variables. One pipeline = one readable, debuggable transformation story. Read it top-to-bottom like prose.</div>
+    </div>
+    <div class="section">
+      <div class="section-label">Core chaining pattern</div>
+      <div class="code-block">
+        <div class="code-header"><span>assign, pipe, query, rename — your chain toolkit</span></div>
+        <pre>result = (
+    pd.<span class="fn">read_parquet</span>(<span class="str">'sales.parquet'</span>)
+    .<span class="fn">query</span>(<span class="str">'year == 2024 and region != "Unknown"'</span>)
+    .<span class="fn">assign</span>(
+        revenue = <span class="kw">lambda</span> df: df[<span class="str">'units'</span>] * df[<span class="str">'price'</span>],
+        month   = <span class="kw">lambda</span> df: df[<span class="str">'date'</span>].dt.month,
+        is_q4   = <span class="kw">lambda</span> df: df[<span class="str">'month'</span>] >= <span class="num">10</span>,
+    )
+    .<span class="fn">rename</span>(columns={<span class="str">'cust_id'</span>: <span class="str">'customer_id'</span>})
+    .<span class="fn">groupby</span>([<span class="str">'region'</span>, <span class="str">'month'</span>], as_index=<span class="kw">False</span>)
+    .<span class="fn">agg</span>(total_rev=(<span class="str">'revenue'</span>, <span class="str">'sum'</span>), orders=(<span class="str">'customer_id'</span>, <span class="str">'nunique'</span>))
+    .<span class="fn">sort_values</span>(<span class="str">'total_rev'</span>, ascending=<span class="kw">False</span>)
+    .<span class="fn">reset_index</span>(drop=<span class="kw">True</span>)
+)</pre>
+      </div>
+    </div>
+    <div class="section">
+      <div class="section-label">pipe() — inject custom functions into chains</div>
+      <div class="code-block good">
+        <div class="code-header"><span>Custom logic stays inside the chain</span><span class="badge good">ELEGANT</span></div>
+        <pre><span class="kw">def</span> <span class="fn">drop_outliers</span>(df, col, z=<span class="num">3</span>):
+    mean, std = df[col].<span class="fn">mean</span>(), df[col].<span class="fn">std</span>()
+    <span class="kw">return</span> df[(df[col] - mean).<span class="fn">abs</span>() &lt;= z * std]
+
+<span class="kw">def</span> <span class="fn">add_pct_rank</span>(df, col):
+    <span class="kw">return</span> df.<span class="fn">assign</span>(**{f<span class="str">'{col}_pct'</span>: df[col].<span class="fn">rank</span>(pct=<span class="kw">True</span>)})
+
+result = (
+    df
+    .<span class="fn">pipe</span>(drop_outliers, col=<span class="str">'salary'</span>, z=<span class="num">2.5</span>)
+    .<span class="fn">pipe</span>(add_pct_rank, col=<span class="str">'salary'</span>)
+    .<span class="fn">query</span>(<span class="str">'salary_pct &gt; 0.5'</span>)
+)</pre>
+      </div>
+    </div>
+    <div class="section">
+      <div class="section-label">Debug chains without breaking them</div>
+      <div class="code-block">
+        <div class="code-header"><span>Tap into the chain with pipe + print — zero disruption</span></div>
+        <pre><span class="kw">def</span> <span class="fn">debug_shape</span>(df, label=<span class="str">''</span>):
+    <span class="fn">print</span>(<span class="str">f"[{label}] shape: {df.shape}"</span>)
+    <span class="kw">return</span> df  <span class="cm"># pass through unchanged</span>
+
+result = (
+    df
+    .<span class="fn">query</span>(<span class="str">'salary &gt; 50_000'</span>)
+    .<span class="fn">pipe</span>(debug_shape, <span class="str">'after filter'</span>)
+    .<span class="fn">groupby</span>(<span class="str">'dept'</span>).<span class="fn">agg</span>(avg=(<span class="str">'salary'</span>, <span class="str">'mean'</span>))
+    .<span class="fn">pipe</span>(debug_shape, <span class="str">'after agg'</span>)
+)</pre>
+      </div>
+    </div>
+  </div>
+
+  <!-- TOPIC 8 -->
+  <div class="topic-page" id="topic-7">
+    <div class="topic-header">
+      <div class="topic-num">TOPIC 08 / 10</div>
+      <div class="topic-title">Advanced Reshaping</div>
+      <div class="topic-tagline"><strong>melt, pivot, pivot_table, stack, unstack, explode.</strong> Know exactly when to reach for each one. No guessing.</div>
+    </div>
+    <div class="section">
+      <div class="section-label">Decision guide</div>
+      <div class="rules">
+        <div class="rule-card"><div class="rule-title">WIDE &#8594; LONG</div><div class="rule-body"><code>melt()</code> — turn column headers into row values. "Unpivot"</div></div>
+        <div class="rule-card"><div class="rule-title">LONG &#8594; WIDE</div><div class="rule-body"><code>pivot()</code> — unique values become column headers. No aggregation.</div></div>
+        <div class="rule-card"><div class="rule-title">AGGREGATED PIVOT</div><div class="rule-body"><code>pivot_table()</code> — like pivot but handles duplicates via aggfunc</div></div>
+        <div class="rule-card"><div class="rule-title">LISTS IN CELLS</div><div class="rule-body"><code>explode()</code> — one row per list element</div></div>
+        <div class="rule-card"><div class="rule-title">INDEX &#8594; COLUMN</div><div class="rule-body"><code>unstack()</code> / <code>stack()</code> — move index levels to columns and back</div></div>
+      </div>
+    </div>
+    <div class="section">
+      <div class="section-label">melt() — wide to long</div>
+      <div class="code-block">
+        <div class="code-header"><span>Turn column headers into row values</span></div>
+        <pre><span class="cm"># Wide:  | product | Q1    | Q2    | Q3    |</span>
+df_long = df.<span class="fn">melt</span>(
+    id_vars    = [<span class="str">'product'</span>],
+    value_vars = [<span class="str">'Q1'</span>, <span class="str">'Q2'</span>, <span class="str">'Q3'</span>],
+    var_name   = <span class="str">'quarter'</span>,
+    value_name = <span class="str">'revenue'</span>
+)
+<span class="cm"># Long:  | product | quarter | revenue |</span></pre>
+      </div>
+    </div>
+    <div class="section">
+      <div class="section-label">pivot_table() — aggregated cross-tabulation</div>
+      <div class="code-block">
+        <div class="code-header"><span>The real pivot — handles duplicate values</span></div>
+        <pre>pt = df.<span class="fn">pivot_table</span>(
+    values    = <span class="str">'revenue'</span>,
+    index     = <span class="str">'region'</span>,
+    columns   = <span class="str">'quarter'</span>,
+    aggfunc   = <span class="str">'sum'</span>,
+    fill_value = <span class="num">0</span>,
+    margins   = <span class="kw">True</span>   <span class="cm"># adds 'All' row+column totals</span>
+)
+
+<span class="cm"># % of row total (normalize per region)</span>
+pt_pct = pt.<span class="fn">div</span>(pt[<span class="str">'All'</span>], axis=<span class="num">0</span>) * <span class="num">100</span></pre>
+      </div>
+    </div>
+    <div class="section">
+      <div class="section-label">explode() — handle list-valued columns</div>
+      <div class="code-block">
+        <div class="code-header"><span>One row per list element</span></div>
+        <pre><span class="cm"># | user_id | tags              |</span>
+<span class="cm"># | 1       | ['python', 'sql'] |</span>
+
+df_exploded = df.<span class="fn">explode</span>(<span class="str">'tags'</span>).<span class="fn">reset_index</span>(drop=<span class="kw">True</span>)
+<span class="cm"># | user_id | tags   |</span>
+<span class="cm"># | 1       | python |</span>
+<span class="cm"># | 1       | sql    |</span>
+
+<span class="cm"># Explode comma-separated strings first</span>
+df[<span class="str">'tags'</span>] = df[<span class="str">'tags_str'</span>].str.<span class="fn">split</span>(<span class="str">','</span>)
+df = df.<span class="fn">explode</span>(<span class="str">'tags'</span>)</pre>
+      </div>
+    </div>
+  </div>
+
+  <!-- TOPIC 9 -->
+  <div class="topic-page" id="topic-8">
+    <div class="topic-header">
+      <div class="topic-num">TOPIC 09 / 10</div>
+      <div class="topic-title">Categoricals & Memory</div>
+      <div class="topic-tagline">Storing <strong>"Engineering"</strong> as a string 500,000 times when there are 8 departments is a moral failure.</div>
+    </div>
+    <div class="section">
+      <div class="section-label">How categoricals work under the hood</div>
+      <div class="callout info"><strong>Categorical dtype stores:</strong> (1) an integer codes array — one int per row, (2) a tiny lookup of unique values. "Engineering" repeated 500k times becomes one integer per row + one string in an 8-item lookup. Memory drops 5–50x depending on cardinality.</div>
+    </div>
+    <div class="section">
+      <div class="section-label">Full categorical API</div>
+      <div class="code-block">
+        <div class="code-header"><span>Creating, inspecting, and manipulating categoricals</span></div>
+        <pre><span class="cm"># Basic conversion</span>
+df[<span class="str">'dept'</span>] = df[<span class="str">'dept'</span>].<span class="fn">astype</span>(<span class="str">'category'</span>)
+
+<span class="cm"># Ordered categories — enables &lt;&gt; comparisons and correct sorting</span>
+size_dtype = pd.CategoricalDtype(
+    categories=[<span class="str">'small'</span>, <span class="str">'medium'</span>, <span class="str">'large'</span>],
+    ordered=<span class="kw">True</span>
+)
+df[<span class="str">'size'</span>] = df[<span class="str">'size'</span>].<span class="fn">astype</span>(size_dtype)
+df[df[<span class="str">'size'</span>] > <span class="str">'small'</span>]   <span class="cm"># comparison works because ordered=True</span>
+
+<span class="cm"># Inspect</span>
+df[<span class="str">'dept'</span>].cat.categories     <span class="cm"># Index of unique values</span>
+df[<span class="str">'dept'</span>].cat.codes           <span class="cm"># int array (the actual storage)</span>
+
+<span class="cm"># Mutate categories</span>
+df[<span class="str">'dept'</span>] = df[<span class="str">'dept'</span>].cat.<span class="fn">rename_categories</span>({<span class="str">'Eng'</span>: <span class="str">'Engineering'</span>})
+df[<span class="str">'dept'</span>] = df[<span class="str">'dept'</span>].cat.<span class="fn">add_categories</span>(<span class="str">'Legal'</span>)   <span class="cm"># before assigning new values</span>
+df[<span class="str">'dept'</span>] = df[<span class="str">'dept'</span>].cat.<span class="fn">remove_unused_categories</span>()</pre>
+      </div>
+    </div>
+    <div class="section">
+      <div class="section-label">Reusable memory optimization function</div>
+      <div class="code-block good">
+        <div class="code-header"><span>Systematic dtype optimizer — use on every DataFrame you load</span><span class="badge good">REUSABLE</span></div>
+        <pre><span class="kw">def</span> <span class="fn">optimize_df</span>(df):
+    before = df.memory_usage(deep=<span class="kw">True</span>).<span class="fn">sum</span>() / <span class="num">1e6</span>
+
+    <span class="kw">for</span> col <span class="kw">in</span> df.<span class="fn">select_dtypes</span>(<span class="str">'int64'</span>).columns:
+        df[col] = pd.<span class="fn">to_numeric</span>(df[col], downcast=<span class="str">'integer'</span>)
+
+    <span class="kw">for</span> col <span class="kw">in</span> df.<span class="fn">select_dtypes</span>(<span class="str">'float64'</span>).columns:
+        df[col] = pd.<span class="fn">to_numeric</span>(df[col], downcast=<span class="str">'float'</span>)
+
+    <span class="kw">for</span> col <span class="kw">in</span> df.<span class="fn">select_dtypes</span>(<span class="str">'object'</span>).columns:
+        <span class="kw">if</span> df[col].<span class="fn">nunique</span>() / <span class="fn">len</span>(df) < <span class="num">0.5</span>:  <span class="cm"># &lt;50% unique values</span>
+            df[col] = df[col].<span class="fn">astype</span>(<span class="str">'category'</span>)
+
+    after = df.memory_usage(deep=<span class="kw">True</span>).<span class="fn">sum</span>() / <span class="num">1e6</span>
+    <span class="fn">print</span>(<span class="str">f"Memory: {before:.1f}MB → {after:.1f}MB ({(1-after/before)*100:.0f}% saved)"</span>)
+    <span class="kw">return</span> df</pre>
+      </div>
+    </div>
+  </div>
+
+  <!-- TOPIC 10 -->
+  <div class="topic-page" id="topic-9">
+    <div class="topic-header">
+      <div class="topic-num">TOPIC 10 / 10</div>
+      <div class="topic-title">Custom Aggregations</div>
+      <div class="topic-tagline">When <strong>sum/mean/count</strong> aren't enough. Write your own agg functions without surrendering to slow apply().</div>
+    </div>
+    <div class="section">
+      <div class="section-label">Named agg with custom callables</div>
+      <div class="code-block">
+        <div class="code-header"><span>Pass any callable directly to agg()</span></div>
+        <pre><span class="kw">def</span> <span class="fn">iqr</span>(x): <span class="kw">return</span> x.<span class="fn">quantile</span>(<span class="num">0.75</span>) - x.<span class="fn">quantile</span>(<span class="num">0.25</span>)
+<span class="kw">def</span> <span class="fn">p95</span>(x): <span class="kw">return</span> x.<span class="fn">quantile</span>(<span class="num">0.95</span>)
+<span class="kw">def</span> <span class="fn">cv</span>(x):  <span class="kw">return</span> x.<span class="fn">std</span>() / x.<span class="fn">mean</span>()   <span class="cm"># coefficient of variation</span>
+
+result = df.<span class="fn">groupby</span>(<span class="str">'dept'</span>).<span class="fn">agg</span>(
+    mean_sal   = (<span class="str">'salary'</span>, <span class="str">'mean'</span>),
+    median_sal = (<span class="str">'salary'</span>, <span class="str">'median'</span>),
+    iqr_sal    = (<span class="str">'salary'</span>, iqr),    <span class="cm"># custom!</span>
+    p95_sal    = (<span class="str">'salary'</span>, p95),
+    cv_sal     = (<span class="str">'salary'</span>, cv),
+)</pre>
+      </div>
+    </div>
+    <div class="section">
+      <div class="section-label">Different aggs per column</div>
+      <div class="code-block">
+        <div class="code-header"><span>Dict mapping + flatten the MultiIndex result</span></div>
+        <pre>result = df.<span class="fn">groupby</span>(<span class="str">'dept'</span>).<span class="fn">agg</span>({
+    <span class="str">'salary'</span>: [<span class="str">'mean'</span>, <span class="str">'max'</span>, iqr],
+    <span class="str">'bonus'</span>:  [<span class="str">'sum'</span>, <span class="str">'mean'</span>],
+    <span class="str">'tenure'</span>: [<span class="str">'median'</span>, p95],
+})
+
+<span class="cm"># Flatten the MultiIndex columns it generates</span>
+result.columns = [<span class="str">'_'</span>.<span class="fn">join</span>(col).<span class="fn">strip</span>() <span class="kw">for</span> col <span class="kw">in</span> result.columns]</pre>
+      </div>
+    </div>
+    <div class="section">
+      <div class="section-label">Rolling custom agg — the one valid rolling apply</div>
+      <div class="code-block good">
+        <div class="code-header"><span>raw=True is critical — passes numpy array, not Series</span><span class="badge good">VALID APPLY USE</span></div>
+        <pre><span class="kw">def</span> <span class="fn">rolling_iqr</span>(arr):   <span class="cm"># arr is a numpy array when raw=True</span>
+    <span class="kw">return</span> np.<span class="fn">percentile</span>(arr, <span class="num">75</span>) - np.<span class="fn">percentile</span>(arr, <span class="num">25</span>)
+
+df[<span class="str">'vol_iqr_30'</span>] = df[<span class="str">'price'</span>].<span class="fn">rolling</span>(<span class="num">30</span>).<span class="fn">apply</span>(rolling_iqr, raw=<span class="kw">True</span>)
+<span class="cm"># raw=True: ~3x faster than raw=False (no Series overhead)</span></pre>
+      </div>
+    </div>
+    <div class="section">
+      <div class="section-label">You have finished all 10 topics.</div>
+      <div class="callout info">
+        <strong>What happens now:</strong> Open a real dataset. Apply every single pattern from memory. The gap between people who read this and people who can actually use it is measured in reps, not minutes. Go get your reps.
+      </div>
+    </div>
+  </div>
+
+  <div class="bottom-nav">
+    <button class="btn" id="prevBtn" onclick="navigate(-1)">&#8592; prev</button>
+    <span style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--muted);align-self:center" id="pageIndicator">1 / 10</span>
+    <button class="btn primary" id="nextBtn" onclick="navigate(1)">next &#8594;</button>
+  </div>
+</main>
+
+<script>
+  const topics = ["Window Fns","MultiIndex","GroupBy","Performance","Vectorize","Big Data","Chaining","Reshape","Categoricals","Custom Agg"];
+  let current = 0;
+  const nav = document.getElementById('topNav');
+  topics.forEach((t, i) => {
+    const btn = document.createElement('button');
+    btn.textContent = (i+1) + '. ' + t;
+    btn.onclick = () => goTo(i);
+    btn.id = 'navBtn' + i;
+    nav.appendChild(btn);
+  });
+  function goTo(i) {
+    document.querySelectorAll('.topic-page').forEach(p => p.classList.remove('active'));
+    document.getElementById('topic-' + i).classList.add('active');
+    document.querySelectorAll('nav button').forEach(b => b.classList.remove('active'));
+    document.getElementById('navBtn' + i).classList.add('active');
+    document.getElementById('pageIndicator').textContent = (i+1) + ' / ' + topics.length;
+    document.getElementById('progressFill').style.width = ((i+1)/topics.length*100) + '%';
+    document.getElementById('prevBtn').disabled = i === 0;
+    document.getElementById('nextBtn').disabled = i === topics.length - 1;
+    document.getElementById('nextBtn').textContent = i === topics.length - 2 ? 'finish \u2192' : 'next \u2192';
+    current = i;
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+  function navigate(dir) { goTo(current + dir); }
+  goTo(0);
+</script>
+</body>
+</html>
